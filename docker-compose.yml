@@ -1,0 +1,57 @@
+version: '3'
+services:
+    rabbitmq:
+        image: rabbitmq:3-management
+        container_name: rabbitmq
+        hostname: node1
+        ports:
+            - 5672:5672
+            - 15672:15672
+        volumes:
+            - rabbitmq:/var/lib/rabbitmq
+    filebeat:
+        image: docker.elastic.co/beats/filebeat-oss:7.8.0
+        container_name: filebeat
+        depends_on:
+            - logstash 
+        volumes:
+            - filebeat:/usr/share/filebeat/data
+            - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+            - /home/supdex/development/microservice_ads/log:/var/log/ads:ro
+            - /home/supdex/development/microservice_geocoder/log:/var/log/geocoder:ro
+            - /home/supdex/development/micro_auth/log:/var/log/auth:ro
+    logstash:
+        image: docker.elastic.co/logstash/logstash:7.12.0
+        container_name: logstash
+        depends_on:
+            - elasticsearch
+        ports:
+            - "5044:5044"
+            - "5000:5000/tcp"
+            - "5000:5000/udp"
+            - "9600:9600"
+        volumes:
+            - ./logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+            - ./logstash/pipelines/log.conf:/usr/share/logstash/config/pipelines/log.conf:ro
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.8.0
+        container_name: elasticsearch
+        volumes:
+            - elasticsearch:/usr/share/elasticsearch/data
+            - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+        ports:
+            - 9200:9200
+    kibana:
+        image: docker.elastic.co/kibana/kibana-oss:7.8.0
+        container_name: kibana
+        depends_on:
+            - elasticsearch
+        environment:
+            ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+        ports:
+            - 5601:5601
+volumes:
+    rabbitmq:
+    logstash:
+    filebeat:
+    elasticsearch:

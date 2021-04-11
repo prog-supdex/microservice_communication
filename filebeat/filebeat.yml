@@ -1,0 +1,20 @@
+filebeat:
+  inputs:
+    - type: log
+      json:
+        message_key: message
+        keys_under_root: true
+      paths:
+        - /var/log/ads/app.log
+        - /var/log/geocoder/app.log
+        - /var/log/auth/app.log
+setup:
+  kibana:
+    host: "http://kibana:5601"
+output.logstash:
+  enabled: true
+  hosts: ["0.0.0.0:5044"]
+# output:
+#   elasticsearch:
+#     hosts: ["http://elasticsearch:9200"]
+#     bulk_max_size: 1000
