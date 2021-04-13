@@ -27,8 +27,7 @@ services:
             - elasticsearch
         ports:
             - "5044:5044"
-            - "5000:5000/tcp"
-            - "5000:5000/udp"
+            - "5000:5000"
             - "9600:9600"
         volumes:
             - ./logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
